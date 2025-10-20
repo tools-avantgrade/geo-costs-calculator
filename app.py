@@ -9,30 +9,100 @@ st.set_page_config(
     layout="wide"
 )
 
-# Dati dei piani Otterly.ai
-PLANS = {
-    "Lite": {
-        "price_monthly": 29,
-        "prompts": 15,
-        "features": ["Report brand illimitati", "AI keyword research", "Monitoraggio base"]
+# Dati dei tool e relativi piani
+TOOLS_DATA = {
+    "Profound": {
+        "description": "Answer engine tracking specializzato",
+        "currency": "$",
+        "plans": {
+            "Base": {
+                "price_monthly": 499,
+                "answer_engines": 4,
+                "companies": 1,
+                "prompts": 200,
+                "data_history": "1 mese",
+                "features": ["4 answer engines tracked", "1 company tracked", "200 prompts tracked", "1 mese data history"]
+            }
+        }
     },
-    "Standard": {
-        "price_monthly": 189,
-        "prompts": 100,
-        "features": ["Tutto del Lite", "100 prompts/mese", "Analytics avanzati"]
+    "Otterly.ai": {
+        "description": "Leader nel monitoraggio AI search",
+        "currency": "$",
+        "plans": {
+            "Lite": {
+                "price_monthly": 29,
+                "prompts": 15,
+                "features": ["Report brand illimitati", "AI keyword research", "Monitoraggio base", "Tutte le piattaforme AI"]
+            },
+            "Standard": {
+                "price_monthly": 189,
+                "prompts": 100,
+                "features": ["Tutto del Lite", "100 prompts/mese", "Analytics avanzati", "Export dati"]
+            },
+            "Premium": {
+                "price_monthly": 489,
+                "prompts": 400,
+                "features": ["Tutto dello Standard", "400 prompts/mese", "Priority support", "API access"]
+            }
+        }
     },
-    "Premium": {
-        "price_monthly": 489,
-        "prompts": 400,
-        "features": ["Tutto dello Standard", "400 prompts/mese", "Priority support"]
+    "Ubersuggest": {
+        "description": "SEO + AI monitoring completo",
+        "currency": "€",
+        "plans": {
+            "Individual": {
+                "price_monthly": 29,
+                "users": 1,
+                "domains": 1,
+                "daily_searches": 150,
+                "keywords_analyze": 50,
+                "competitors": 5,
+                "pages_crawled": 1000,
+                "keywords_tracked": 125,
+                "ai_prompts": 10,
+                "features": ["150 ricerche/giorno", "50 keyword analisi", "5 competitor", "1000 pagine scansionate", "10 AI prompts/mese"]
+            },
+            "Business": {
+                "price_monthly": 49,
+                "users": 2,
+                "domains": 7,
+                "daily_searches": 300,
+                "keywords_analyze": 200,
+                "competitors": 10,
+                "pages_crawled": 5000,
+                "keywords_tracked": 150,
+                "ai_prompts": 15,
+                "prompt_frequency": "ogni 2 settimane",
+                "features": ["2 utenti", "7 domini", "300 ricerche/giorno", "200 keyword analisi", "10 competitor", "15 AI prompts/2 settimane"]
+            }
+        }
+    },
+    "Conductor": {
+        "description": "Enterprise SEO & content platform",
+        "currency": "€",
+        "plans": {
+            "Professional": {
+                "price_monthly": 620,
+                "pages": 1000,
+                "keywords": 500,
+                "drafts": 60,
+                "features": ["1000 pagine", "500 keywords", "60 drafts", "Content optimization", "SEO insights"]
+            },
+            "Enterprise": {
+                "price_monthly": 1310,
+                "pages": 5000,
+                "keywords": 1000,
+                "drafts": 120,
+                "features": ["5000 pagine", "1000 keywords", "120 drafts", "Advanced analytics", "Priority support", "Custom integrations"]
+            }
+        }
     }
 }
 
-# Piattaforme monitorate
 PLATFORMS = ["ChatGPT", "Perplexity", "Google AI Overviews", "Gemini", "Copilot"]
 
-def calculate_cost(num_prompts, billing_cycle="monthly"):
-    """Calcola il costo in base al numero di prompts"""
+def calculate_cost_otterly(num_prompts, billing_cycle="monthly"):
+    """Calcola il costo per Otterly.ai"""
     if num_prompts <= 15:
         plan = "Lite"
         monthly_cost = 29
@@ -44,44 +114,111 @@ def calculate_cost(num_prompts, billing_cycle="monthly"):
         monthly_cost = 489
         if num_prompts > 400:
             extra_prompts = num_prompts - 400
-            # Stima costo extra (non ufficiale, da verificare con Otterly)
             monthly_cost += (extra_prompts // 100) * 150
     
-    if billing_cycle == "yearly":
-        yearly_cost = monthly_cost * 12 * 0.85  # Assumiamo 15% sconto annuale
-        return plan, monthly_cost, yearly_cost
+    yearly_discount = 0.85 if billing_cycle == "yearly" else 1
+    yearly_cost = monthly_cost * 12 * yearly_discount
     
-    return plan, monthly_cost, monthly_cost * 12
+    return plan, monthly_cost, yearly_cost
+
+def calculate_cost_profound(num_prompts, num_companies=1, billing_cycle="monthly"):
+    """Calcola il costo per Profound"""
+    # Profound ha un solo piano base
+    base_cost = 499
+    
+    # Calcola costi extra se supera i limiti
+    extra_cost = 0
+    if num_prompts > 200:
+        extra_prompts = num_prompts - 200
+        extra_cost += (extra_prompts // 100) * 200  # Stima $200 per 100 prompts extra
+    
+    if num_companies > 1:
+        extra_cost += (num_companies - 1) * 300  # Stima $300 per company extra
+    
+    monthly_cost = base_cost + extra_cost
+    yearly_discount = 0.85 if billing_cycle == "yearly" else 1
+    yearly_cost = monthly_cost * 12 * yearly_discount
+    
+    return "Base", monthly_cost, yearly_cost
+
+def calculate_cost_ubersuggest(ai_prompts, domains=1, billing_cycle="monthly"):
+    """Calcola il costo per Ubersuggest"""
+    # Ubersuggest calcola in base ai prompts mensili
+    if ai_prompts <= 10 and domains <= 1:
+        plan = "Individual"
+        monthly_cost = 29
+    else:
+        plan = "Business"
+        monthly_cost = 49
+        # Se supera i limiti, stima costi extra
+        if domains > 7:
+            monthly_cost += (domains - 7) * 10
+    
+    yearly_discount = 0.85 if billing_cycle == "yearly" else 1
+    yearly_cost = monthly_cost * 12 * yearly_discount
+    
+    return plan, monthly_cost, yearly_cost
+
+def calculate_cost_conductor(keywords, pages=1000, billing_cycle="monthly"):
+    """Calcola il costo per Conductor"""
+    if keywords <= 500 and pages <= 1000:
+        plan = "Professional"
+        monthly_cost = 620
+    else:
+        plan = "Enterprise"
+        monthly_cost = 1310
+        # Se supera limiti Enterprise
+        if keywords > 1000:
+            monthly_cost += ((keywords - 1000) // 500) * 400
+        if pages > 5000:
+            monthly_cost += ((pages - 5000) // 1000) * 100
+    
+    yearly_discount = 0.85 if billing_cycle == "yearly" else 1
+    yearly_cost = monthly_cost * 12 * yearly_discount
+    
+    return plan, monthly_cost, yearly_cost
 
 def main():
     # Header
     st.title("🔍 AI Brand Monitoring Cost Calculator")
-    st.markdown("**Calcola quanto costa monitorare il tuo brand su ChatGPT e altre AI**")
+    st.markdown("**Confronta i costi tra i principali tool di monitoraggio brand su AI**")
     st.markdown("---")
     
     # Sidebar per informazioni
     with st.sidebar:
-        st.header("ℹ️ Informazioni")
-        st.markdown("""
-        ### Cos'è Otterly.ai?
-        Tool per monitorare come il tuo brand appare su:
-        - ChatGPT
-        - Perplexity
-        - Google AI Overviews
-        - Gemini
-        - Copilot
+        st.header("ℹ️ Informazioni Tool")
         
-        ### Cosa sono i "Prompts"?
-        Le domande/query che vuoi monitorare, es:
-        - "Miglior [categoria] in Italia"
-        - "Che cos'è [tuo brand]"
-        - "[tuo brand] vs competitor"
-        """)
+        selected_tool_info = st.selectbox(
+            "Seleziona tool per info",
+            list(TOOLS_DATA.keys())
+        )
+        
+        st.markdown(f"### {selected_tool_info}")
+        st.markdown(f"*{TOOLS_DATA[selected_tool_info]['description']}*")
+        
+        st.markdown("**Piani disponibili:**")
+        for plan_name in TOOLS_DATA[selected_tool_info]['plans'].keys():
+            plan = TOOLS_DATA[selected_tool_info]['plans'][plan_name]
+            currency = TOOLS_DATA[selected_tool_info]['currency']
+            st.markdown(f"- **{plan_name}**: {currency}{plan['price_monthly']}/mese")
         
         st.markdown("---")
-        st.markdown("**Tool creato per calcolare i costi di monitoraggio brand su AI**")
+        st.markdown("### Piattaforme AI monitorate")
+        st.markdown("- ChatGPT\n- Perplexity\n- Google AI Overviews\n- Gemini\n- Copilot")
     
-    # Input form
+    # Selezione tool principale
+    st.subheader("🛠️ Seleziona il Tool")
+    selected_tool = st.selectbox(
+        "Quale tool vuoi usare?",
+        list(TOOLS_DATA.keys()),
+        help="Ogni tool ha caratteristiche e prezzi diversi"
+    )
+    
+    currency = TOOLS_DATA[selected_tool]['currency']
+    
+    st.markdown("---")
+    
+    # Input form dinamico in base al tool
     col1, col2 = st.columns(2)
     
     with col1:
@@ -89,18 +226,73 @@ def main():
         brand_name = st.text_input("Nome del tuo brand", placeholder="Es: MioBrand SRL")
         industry = st.selectbox(
             "Settore",
-            ["E-commerce", "SaaS", "Servizi", "Prodotti", "Consulenza", "Altro"]
+            ["E-commerce", "SaaS", "Servizi", "Prodotti", "Consulenza", "Fintech", "Healthcare", "Altro"]
         )
         
         st.subheader("🎯 Configurazione Monitoraggio")
-        num_prompts = st.number_input(
-            "Numero di prompts da monitorare",
-            min_value=1,
-            max_value=1000,
-            value=15,
-            step=5,
-            help="Un prompt = una query da monitorare (es: 'miglior software per...')"
-        )
+        
+        # Input specifici per tool
+        if selected_tool == "Otterly.ai":
+            num_prompts = st.number_input(
+                "Numero di prompts da monitorare",
+                min_value=1,
+                max_value=1000,
+                value=15,
+                step=5,
+                help="Quante query vuoi monitorare (es: 'miglior software per...')"
+            )
+        
+        elif selected_tool == "Profound":
+            num_prompts = st.number_input(
+                "Numero di prompts da monitorare",
+                min_value=1,
+                max_value=1000,
+                value=200,
+                step=10,
+                help="Piano base include 200 prompts"
+            )
+            num_companies = st.number_input(
+                "Numero di company da tracciare",
+                min_value=1,
+                max_value=10,
+                value=1,
+                help="Piano base include 1 company"
+            )
+        
+        elif selected_tool == "Ubersuggest":
+            ai_prompts = st.number_input(
+                "AI Prompts al mese",
+                min_value=1,
+                max_value=100,
+                value=10,
+                step=5,
+                help="Numero di AI prompts/query al mese"
+            )
+            domains = st.number_input(
+                "Numero di domini (progetti)",
+                min_value=1,
+                max_value=20,
+                value=1,
+                help="Quanti domini/progetti vuoi monitorare"
+            )
+        
+        elif selected_tool == "Conductor":
+            keywords = st.number_input(
+                "Numero di keywords",
+                min_value=1,
+                max_value=5000,
+                value=500,
+                step=50,
+                help="Quante keywords vuoi tracciare"
+            )
+            pages = st.number_input(
+                "Numero di pagine",
+                min_value=100,
+                max_value=10000,
+                value=1000,
+                step=100,
+                help="Quante pagine del sito monitorare"
+            )
         
         competitors = st.number_input(
             "Numero di competitor da tracciare",
@@ -134,9 +326,22 @@ def main():
     
     # Calcolo e risultati
     if st.button("🧮 Calcola Costi", type="primary", use_container_width=True):
-        plan, monthly_cost, yearly_cost = calculate_cost(num_prompts, billing_cycle)
         
-        st.success("✅ Calcolo completato!")
+        # Calcolo in base al tool selezionato
+        if selected_tool == "Otterly.ai":
+            plan, monthly_cost, yearly_cost = calculate_cost_otterly(num_prompts, billing_cycle)
+            main_metric = f"{num_prompts} prompts"
+        elif selected_tool == "Profound":
+            plan, monthly_cost, yearly_cost = calculate_cost_profound(num_prompts, num_companies, billing_cycle)
+            main_metric = f"{num_prompts} prompts, {num_companies} company"
+        elif selected_tool == "Ubersuggest":
+            plan, monthly_cost, yearly_cost = calculate_cost_ubersuggest(ai_prompts, domains, billing_cycle)
+            main_metric = f"{ai_prompts} AI prompts, {domains} domini"
+        elif selected_tool == "Conductor":
+            plan, monthly_cost, yearly_cost = calculate_cost_conductor(keywords, pages, billing_cycle)
+            main_metric = f"{keywords} keywords, {pages} pagine"
+        
+        st.success(f"✅ Calcolo completato per {selected_tool}!")
         
         # Risultati principali
         col1, col2, col3 = st.columns(3)
@@ -144,41 +349,60 @@ def main():
         with col1:
             st.metric(
                 "Piano Consigliato",
-                plan,
-                delta=f"{PLANS[plan]['prompts']} prompts inclusi"
+                f"{selected_tool} - {plan}",
+                delta=main_metric
             )
         
         with col2:
             if billing_cycle == "monthly":
                 st.metric(
                     "Costo Mensile",
-                    f"${monthly_cost}",
-                    delta=f"${yearly_cost}/anno"
+                    f"{currency}{monthly_cost}",
+                    delta=f"{currency}{yearly_cost:.0f}/anno"
                 )
             else:
+                savings = (monthly_cost * 12 - yearly_cost)
                 st.metric(
                     "Costo Annuale",
-                    f"${yearly_cost:.0f}",
-                    delta=f"Risparmi ${(monthly_cost * 12 - yearly_cost):.0f}"
+                    f"{currency}{yearly_cost:.0f}",
+                    delta=f"Risparmi {currency}{savings:.0f}",
+                    delta_color="inverse"
                 )
         
         with col3:
-            cost_per_prompt = monthly_cost / num_prompts
-            st.metric(
-                "Costo per Prompt",
-                f"${cost_per_prompt:.2f}",
-                delta="al mese"
-            )
+            if selected_tool in ["Otterly.ai", "Profound"]:
+                metric_value = num_prompts if selected_tool == "Otterly.ai" else num_prompts
+                cost_per_unit = monthly_cost / metric_value
+                st.metric(
+                    "Costo per Prompt",
+                    f"{currency}{cost_per_unit:.2f}",
+                    delta="al mese"
+                )
+            elif selected_tool == "Ubersuggest":
+                cost_per_prompt = monthly_cost / ai_prompts if ai_prompts > 0 else 0
+                st.metric(
+                    "Costo per AI Prompt",
+                    f"{currency}{cost_per_prompt:.2f}",
+                    delta="al mese"
+                )
+            elif selected_tool == "Conductor":
+                cost_per_keyword = monthly_cost / keywords if keywords > 0 else 0
+                st.metric(
+                    "Costo per Keyword",
+                    f"{currency}{cost_per_keyword:.2f}",
+                    delta="al mese"
+                )
         
         # Dettagli del piano
         st.markdown("---")
-        st.subheader(f"📊 Dettagli Piano {plan}")
+        st.subheader(f"📊 Dettagli Piano {plan} - {selected_tool}")
         
         col1, col2 = st.columns(2)
         
         with col1:
             st.markdown("**Caratteristiche incluse:**")
-            for feature in PLANS[plan]["features"]:
+            plan_features = TOOLS_DATA[selected_tool]['plans'][plan]['features']
+            for feature in plan_features:
                 st.markdown(f"✓ {feature}")
             st.markdown(f"✓ Monitoraggio su {len(selected_platforms)} piattaforme")
             st.markdown(f"✓ Tracking di {competitors} competitor")
@@ -188,63 +412,126 @@ def main():
             st.markdown("**Piattaforme monitorate:**")
             for platform in selected_platforms:
                 st.markdown(f"🤖 {platform}")
+            
+            st.markdown(f"\n**Brand:** {brand_name}")
+            st.markdown(f"**Settore:** {industry}")
         
-        # Tabella comparativa
+        # Tabella comparativa tra tutti i tool
         st.markdown("---")
-        st.subheader("📈 Confronto Piani")
+        st.subheader("📈 Confronto tra Tool")
         
         comparison_data = {
-            "Piano": ["Lite", "Standard", "Premium"],
-            "Prezzo/mese": ["$29", "$189", "$489"],
-            "Prompts": ["15", "100", "400"],
-            "Adatto per": [
-                "Piccole imprese, test",
-                "Medie imprese, SEO",
-                "Enterprise, agencies"
-            ]
+            "Tool": [],
+            "Piano Base": [],
+            "Prezzo/mese": [],
+            "Caratteristica Principale": [],
+            "Ideale per": []
         }
         
-        df = pd.DataFrame(comparison_data)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        tool_recommendations = {
+            "Profound": ("Base", "$499", "Answer engine tracking", "Enterprise con focus AI-first"),
+            "Otterly.ai": ("Lite", "$29", "AI search monitoring", "Startup e PMI"),
+            "Ubersuggest": ("Individual", "€29", "SEO + AI completo", "Freelancer e piccoli team"),
+            "Conductor": ("Professional", "€620", "Enterprise SEO platform", "Grandi aziende")
+        }
         
-        # Raccomandazioni
+        for tool, (plan, price, feature, ideal) in tool_recommendations.items():
+            comparison_data["Tool"].append(tool)
+            comparison_data["Piano Base"].append(plan)
+            comparison_data["Prezzo/mese"].append(price)
+            comparison_data["Caratteristica Principale"].append(feature)
+            comparison_data["Ideale per"].append(ideal)
+        
+        df = pd.DataFrame(comparison_data)
+        
+        # Evidenzia il tool selezionato
+        def highlight_selected(row):
+            if row['Tool'] == selected_tool:
+                return ['background-color: #28a745; color: white'] * len(row)
+            return [''] * len(row)
+        
+        styled_df = df.style.apply(highlight_selected, axis=1)
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+        
+        # Raccomandazioni personalizzate
         st.markdown("---")
         st.subheader("💡 Raccomandazioni")
         
-        if num_prompts <= 10:
-            st.info("💰 **Piano Lite** è perfetto per iniziare. Puoi sempre fare upgrade.")
-        elif num_prompts <= 80:
-            st.info("⚙️ **Piano Standard** offre un buon equilibrio qualità-prezzo per la tua esigenza.")
-        else:
-            st.warning("🚀 **Piano Premium** necessario. Considera di contattare Otterly per piani custom se hai bisogno di più di 400 prompts.")
+        if selected_tool == "Otterly.ai":
+            if num_prompts <= 15:
+                st.info("💰 **Ottimo inizio!** Il piano Lite è perfetto per testare il monitoraggio AI.")
+            elif num_prompts <= 100:
+                st.info("⚙️ **Scelta equilibrata!** Lo Standard offre un ottimo rapporto qualità-prezzo.")
+            else:
+                st.warning("🚀 **Uso intensivo!** Considera il Premium o contatta Otterly per piani custom.")
+        
+        elif selected_tool == "Profound":
+            st.info("🎯 **Tool specializzato!** Profound è ideale se vuoi focus su answer engines e tracking profondo.")
+            if num_prompts > 200:
+                st.warning(f"⚠️ Stai superando i 200 prompts inclusi. Costo stimato per {num_prompts - 200} prompts extra.")
+        
+        elif selected_tool == "Ubersuggest":
+            st.info("📊 **All-in-one!** Ubersuggest combina SEO tradizionale con AI monitoring.")
+            if domains > 1:
+                st.success("✅ Ottimo per gestire più progetti/clienti contemporaneamente.")
+        
+        elif selected_tool == "Conductor":
+            st.info("🏢 **Enterprise solution!** Conductor è la scelta per grandi organizzazioni con esigenze complesse.")
+            if keywords > 500:
+                st.success("✅ Il piano Enterprise ti darà più flessibilità per keyword tracking massivo.")
         
         # ROI Estimation
         st.markdown("---")
         st.subheader("📊 Stima ROI")
-        st.markdown("""
-        **Benefici del monitoraggio:**
-        - Visibilità brand su AI: aumento fino al 50% in 3-6 mesi
-        - Ottimizzazione contenuti: migliore posizionamento
-        - Vantaggio competitivo: anticipa i competitor
-        - Crisis management: rispondi rapidamente a menzioni negative
-        """)
+        
+        roi_benefits = {
+            "Otterly.ai": [
+                "Visibilità brand su AI: +50% in 3-6 mesi",
+                "Ottimizzazione contenuti per AI search",
+                "Tracking competitor real-time",
+                "Identificazione gap di mercato"
+            ],
+            "Profound": [
+                "Deep insights su answer engines",
+                "Tracking accurato su 4+ piattaforme",
+                "Data history per analisi trend",
+                "Focus su conversazioni AI"
+            ],
+            "Ubersuggest": [
+                "SEO + AI monitoring combinato",
+                "Keyword research tradizionale + AI",
+                "Analisi competitor completa",
+                "Content ideas per AI optimization"
+            ],
+            "Conductor": [
+                "Platform enterprise completa",
+                "Content workflow automation",
+                "Advanced analytics e reporting",
+                "Integrations con marketing stack"
+            ]
+        }
+        
+        st.markdown(f"**Benefici con {selected_tool}:**")
+        for benefit in roi_benefits[selected_tool]:
+            st.markdown(f"- {benefit}")
         
         # Export
         st.markdown("---")
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         
         with col1:
             # Crea summary per export
             summary = f"""
 REPORT CALCOLO COSTI - AI BRAND MONITORING
 ==========================================
+Tool selezionato: {selected_tool}
 Brand: {brand_name}
 Settore: {industry}
-Data: {datetime.now().strftime('%d/%m/%Y')}
+Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}
 
 CONFIGURAZIONE
 --------------
-Prompts da monitorare: {num_prompts}
+{main_metric}
 Competitor tracciati: {competitors}
 Piattaforme: {', '.join(selected_platforms)}
 Frequenza: {frequency}
@@ -252,26 +539,44 @@ Frequenza: {frequency}
 COSTI
 -----
 Piano consigliato: {plan}
-Costo mensile: ${monthly_cost}
-Costo annuale: ${yearly_cost:.0f}
-Costo per prompt: ${cost_per_prompt:.2f}/mese
+Costo mensile: {currency}{monthly_cost}
+Costo annuale: {currency}{yearly_cost:.0f}
+Ciclo: {billing_cycle}
 
-PROMPTS INCLUSI NEL PIANO
---------------------------
-{PLANS[plan]['prompts']} prompts/mese
+CARATTERISTICHE PIANO
+---------------------
 """
+            for feature in plan_features:
+                summary += f"- {feature}\n"
+            
+            summary += f"\n---\nCalcolatore by AI Brand Monitoring Calculator"
             
             st.download_button(
                 label="📥 Scarica Report (TXT)",
                 data=summary,
-                file_name=f"brand_monitoring_report_{datetime.now().strftime('%Y%m%d')}.txt",
+                file_name=f"{selected_tool.lower()}_report_{datetime.now().strftime('%Y%m%d')}.txt",
                 mime="text/plain"
             )
         
         with col2:
+            # Link al tool selezionato
+            tool_urls = {
+                "Profound": "https://profound.ai",
+                "Otterly.ai": "https://otterly.ai/pricing",
+                "Ubersuggest": "https://neilpatel.com/ubersuggest/pricing",
+                "Conductor": "https://conductor.com/pricing"
+            }
+            
             st.link_button(
-                "🔗 Vai a Otterly.ai",
-                "https://otterly.ai/pricing"
+                f"🔗 Vai a {selected_tool}",
+                tool_urls[selected_tool]
+            )
+        
+        with col3:
+            st.link_button(
+                "🔄 Confronta Altri Tool",
+                "#",
+                help="Torna su e cambia tool per confrontare"
             )
 
 if __name__ == "__main__":
