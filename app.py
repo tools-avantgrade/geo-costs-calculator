@@ -32,7 +32,7 @@ TOOLS_DATA = {
             "Lite": {
                 "price_monthly": 29,
                 "prompts": 15,
-                "features": ["Report brand illimitati", "AI keyword research", "Monitoraggio base", "Tutte le piattaforme AI"]
+                "features": ["Report brand illimitati", "AI prompt research", "Monitoraggio base", "Tutte le piattaforme AI"]
             },
             "Standard": {
                 "price_monthly": 189,
@@ -55,25 +55,25 @@ TOOLS_DATA = {
                 "users": 1,
                 "domains": 1,
                 "daily_searches": 150,
-                "keywords_analyze": 50,
+                "prompts_analyze": 50,
                 "competitors": 5,
                 "pages_crawled": 1000,
-                "keywords_tracked": 125,
+                "prompts_tracked": 125,
                 "ai_prompts": 10,
-                "features": ["150 ricerche/giorno", "50 keyword analisi", "5 competitor", "1000 pagine scansionate", "10 AI prompts/mese"]
+                "features": ["150 ricerche/giorno", "50 prompts analisi", "5 competitor", "1000 pagine scansionate", "10 AI prompts/mese"]
             },
             "Business": {
                 "price_monthly": 49,
                 "users": 2,
                 "domains": 7,
                 "daily_searches": 300,
-                "keywords_analyze": 200,
+                "prompts_analyze": 200,
                 "competitors": 10,
                 "pages_crawled": 5000,
-                "keywords_tracked": 150,
+                "prompts_tracked": 150,
                 "ai_prompts": 15,
                 "prompt_frequency": "ogni 2 settimane",
-                "features": ["2 utenti", "7 domini", "300 ricerche/giorno", "200 keyword analisi", "10 competitor", "15 AI prompts/2 settimane"]
+                "features": ["2 utenti", "7 domini", "300 ricerche/giorno", "200 prompts analisi", "10 competitor", "15 AI prompts/2 settimane"]
             }
         }
     },
@@ -84,16 +84,16 @@ TOOLS_DATA = {
             "Professional": {
                 "price_monthly": 620,
                 "pages": 1000,
-                "keywords": 500,
+                "prompts": 500,
                 "drafts": 60,
-                "features": ["1000 pagine", "500 keywords", "60 drafts", "Content optimization", "SEO insights"]
+                "features": ["1000 pagine", "500 prompts", "60 drafts", "Content optimization", "SEO insights"]
             },
             "Enterprise": {
                 "price_monthly": 1310,
                 "pages": 5000,
-                "keywords": 1000,
+                "prompts": 1000,
                 "drafts": 120,
-                "features": ["5000 pagine", "1000 keywords", "120 drafts", "Advanced analytics", "Priority support", "Custom integrations"]
+                "features": ["5000 pagine", "1000 prompts", "120 drafts", "Advanced analytics", "Priority support", "Custom integrations"]
             }
         }
     }
@@ -159,17 +159,17 @@ def calculate_cost_ubersuggest(ai_prompts, domains=1, billing_cycle="monthly"):
     
     return plan, monthly_cost, yearly_cost
 
-def calculate_cost_conductor(keywords, pages=1000, billing_cycle="monthly"):
+def calculate_cost_conductor(prompts, pages=1000, billing_cycle="monthly"):
     """Calcola il costo per Conductor"""
-    if keywords <= 500 and pages <= 1000:
+    if prompts <= 500 and pages <= 1000:
         plan = "Professional"
         monthly_cost = 620
     else:
         plan = "Enterprise"
         monthly_cost = 1310
         # Se supera limiti Enterprise
-        if keywords > 1000:
-            monthly_cost += ((keywords - 1000) // 500) * 400
+        if prompts > 1000:
+            monthly_cost += ((prompts - 1000) // 500) * 400
         if pages > 5000:
             monthly_cost += ((pages - 5000) // 1000) * 100
     
@@ -205,6 +205,16 @@ def main():
         st.markdown("---")
         st.markdown("### Piattaforme AI monitorate")
         st.markdown("- ChatGPT\n- Perplexity\n- Google AI Overviews\n- Gemini\n- Copilot")
+        
+        st.markdown("---")
+        st.markdown("### 💡 Cosa sono i Prompts?")
+        st.markdown("""
+        I **prompts** (o query) sono le domande che vuoi monitorare sulle AI, ad esempio:
+        - "Miglior software CRM per PMI"
+        - "Come scegliere un consulente marketing"
+        - "Alternative a [competitor]"
+        - "[Tuo brand] vs [competitor]"
+        """)
     
     # Selezione tool principale
     st.subheader("🛠️ Seleziona il Tool")
@@ -239,7 +249,7 @@ def main():
                 max_value=1000,
                 value=15,
                 step=5,
-                help="Quante query vuoi monitorare (es: 'miglior software per...')"
+                help="Quante query vuoi tracciare (es: 'miglior software per...', 'come scegliere...')"
             )
         
         elif selected_tool == "Profound":
@@ -266,7 +276,7 @@ def main():
                 max_value=100,
                 value=10,
                 step=5,
-                help="Numero di AI prompts/query al mese"
+                help="Numero di AI prompts/query al mese da monitorare"
             )
             domains = st.number_input(
                 "Numero di domini (progetti)",
@@ -277,13 +287,13 @@ def main():
             )
         
         elif selected_tool == "Conductor":
-            keywords = st.number_input(
-                "Numero di keywords",
+            prompts = st.number_input(
+                "Numero di prompts",
                 min_value=1,
                 max_value=5000,
                 value=500,
                 step=50,
-                help="Quante keywords vuoi tracciare"
+                help="Quanti prompts vuoi tracciare"
             )
             pages = st.number_input(
                 "Numero di pagine",
@@ -338,8 +348,8 @@ def main():
             plan, monthly_cost, yearly_cost = calculate_cost_ubersuggest(ai_prompts, domains, billing_cycle)
             main_metric = f"{ai_prompts} AI prompts, {domains} domini"
         elif selected_tool == "Conductor":
-            plan, monthly_cost, yearly_cost = calculate_cost_conductor(keywords, pages, billing_cycle)
-            main_metric = f"{keywords} keywords, {pages} pagine"
+            plan, monthly_cost, yearly_cost = calculate_cost_conductor(prompts, pages, billing_cycle)
+            main_metric = f"{prompts} prompts, {pages} pagine"
         
         st.success(f"✅ Calcolo completato per {selected_tool}!")
         
@@ -372,7 +382,7 @@ def main():
         with col3:
             if selected_tool in ["Otterly.ai", "Profound"]:
                 metric_value = num_prompts if selected_tool == "Otterly.ai" else num_prompts
-                cost_per_unit = monthly_cost / metric_value
+                cost_per_unit = monthly_cost / metric_value if metric_value > 0 else 0
                 st.metric(
                     "Costo per Prompt",
                     f"{currency}{cost_per_unit:.2f}",
@@ -386,10 +396,10 @@ def main():
                     delta="al mese"
                 )
             elif selected_tool == "Conductor":
-                cost_per_keyword = monthly_cost / keywords if keywords > 0 else 0
+                cost_per_prompt = monthly_cost / prompts if prompts > 0 else 0
                 st.metric(
-                    "Costo per Keyword",
-                    f"{currency}{cost_per_keyword:.2f}",
+                    "Costo per Prompt",
+                    f"{currency}{cost_per_prompt:.2f}",
                     delta="al mese"
                 )
         
@@ -435,9 +445,9 @@ def main():
             "Conductor": ("Professional", "€620", "Enterprise SEO platform", "Grandi aziende")
         }
         
-        for tool, (plan, price, feature, ideal) in tool_recommendations.items():
+        for tool, (plan_name, price, feature, ideal) in tool_recommendations.items():
             comparison_data["Tool"].append(tool)
-            comparison_data["Piano Base"].append(plan)
+            comparison_data["Piano Base"].append(plan_name)
             comparison_data["Prezzo/mese"].append(price)
             comparison_data["Caratteristica Principale"].append(feature)
             comparison_data["Ideale per"].append(ideal)
@@ -459,26 +469,26 @@ def main():
         
         if selected_tool == "Otterly.ai":
             if num_prompts <= 15:
-                st.info("💰 **Ottimo inizio!** Il piano Lite è perfetto per testare il monitoraggio AI.")
+                st.info("💰 **Ottimo inizio!** Il piano Lite è perfetto per testare il monitoraggio AI con pochi prompts.")
             elif num_prompts <= 100:
-                st.info("⚙️ **Scelta equilibrata!** Lo Standard offre un ottimo rapporto qualità-prezzo.")
+                st.info("⚙️ **Scelta equilibrata!** Lo Standard offre un ottimo rapporto qualità-prezzo per monitoraggio regolare.")
             else:
-                st.warning("🚀 **Uso intensivo!** Considera il Premium o contatta Otterly per piani custom.")
+                st.warning("🚀 **Uso intensivo!** Considera il Premium o contatta Otterly per piani custom con più prompts.")
         
         elif selected_tool == "Profound":
-            st.info("🎯 **Tool specializzato!** Profound è ideale se vuoi focus su answer engines e tracking profondo.")
+            st.info("🎯 **Tool specializzato!** Profound è ideale se vuoi focus su answer engines e tracking profondo dei prompts.")
             if num_prompts > 200:
                 st.warning(f"⚠️ Stai superando i 200 prompts inclusi. Costo stimato per {num_prompts - 200} prompts extra.")
         
         elif selected_tool == "Ubersuggest":
-            st.info("📊 **All-in-one!** Ubersuggest combina SEO tradizionale con AI monitoring.")
+            st.info("📊 **All-in-one!** Ubersuggest combina SEO tradizionale con AI prompt monitoring.")
             if domains > 1:
-                st.success("✅ Ottimo per gestire più progetti/clienti contemporaneamente.")
+                st.success("✅ Ottimo per gestire più progetti/clienti con prompts diversificati.")
         
         elif selected_tool == "Conductor":
-            st.info("🏢 **Enterprise solution!** Conductor è la scelta per grandi organizzazioni con esigenze complesse.")
-            if keywords > 500:
-                st.success("✅ Il piano Enterprise ti darà più flessibilità per keyword tracking massivo.")
+            st.info("🏢 **Enterprise solution!** Conductor è la scelta per grandi organizzazioni con esigenze complesse di prompt tracking.")
+            if prompts > 500:
+                st.success("✅ Il piano Enterprise ti darà più flessibilità per prompt tracking massivo.")
         
         # ROI Estimation
         st.markdown("---")
@@ -487,26 +497,26 @@ def main():
         roi_benefits = {
             "Otterly.ai": [
                 "Visibilità brand su AI: +50% in 3-6 mesi",
-                "Ottimizzazione contenuti per AI search",
-                "Tracking competitor real-time",
-                "Identificazione gap di mercato"
+                "Ottimizzazione contenuti per risposte AI",
+                "Tracking competitor su prompts rilevanti",
+                "Identificazione gap di mercato nei risultati AI"
             ],
             "Profound": [
                 "Deep insights su answer engines",
-                "Tracking accurato su 4+ piattaforme",
-                "Data history per analisi trend",
-                "Focus su conversazioni AI"
+                "Tracking accurato su 4+ piattaforme AI",
+                "Data history per analisi trend prompts",
+                "Focus su conversazioni AI e query utenti"
             ],
             "Ubersuggest": [
-                "SEO + AI monitoring combinato",
-                "Keyword research tradizionale + AI",
-                "Analisi competitor completa",
-                "Content ideas per AI optimization"
+                "SEO + AI prompt monitoring combinato",
+                "Prompt research tradizionale + AI",
+                "Analisi competitor su query comuni",
+                "Content ideas per ottimizzazione AI"
             ],
             "Conductor": [
                 "Platform enterprise completa",
                 "Content workflow automation",
-                "Advanced analytics e reporting",
+                "Advanced analytics su prompts e performance",
                 "Integrations con marketing stack"
             ]
         }
@@ -554,7 +564,7 @@ CARATTERISTICHE PIANO
             st.download_button(
                 label="📥 Scarica Report (TXT)",
                 data=summary,
-                file_name=f"{selected_tool.lower()}_report_{datetime.now().strftime('%Y%m%d')}.txt",
+                file_name=f"{selected_tool.lower().replace('.', '_')}_report_{datetime.now().strftime('%Y%m%d')}.txt",
                 mime="text/plain"
             )
         
