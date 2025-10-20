@@ -123,17 +123,15 @@ def calculate_cost_otterly(num_prompts, billing_cycle="monthly"):
 
 def calculate_cost_profound(num_prompts, num_companies=1, billing_cycle="monthly"):
     """Calcola il costo per Profound"""
-    # Profound ha un solo piano base
     base_cost = 499
     
-    # Calcola costi extra se supera i limiti
     extra_cost = 0
     if num_prompts > 200:
         extra_prompts = num_prompts - 200
-        extra_cost += (extra_prompts // 100) * 200  # Stima $200 per 100 prompts extra
+        extra_cost += (extra_prompts // 100) * 200
     
     if num_companies > 1:
-        extra_cost += (num_companies - 1) * 300  # Stima $300 per company extra
+        extra_cost += (num_companies - 1) * 300
     
     monthly_cost = base_cost + extra_cost
     yearly_discount = 0.85 if billing_cycle == "yearly" else 1
@@ -143,14 +141,12 @@ def calculate_cost_profound(num_prompts, num_companies=1, billing_cycle="monthly
 
 def calculate_cost_ubersuggest(ai_prompts, domains=1, billing_cycle="monthly"):
     """Calcola il costo per Ubersuggest"""
-    # Ubersuggest calcola in base ai prompts mensili
     if ai_prompts <= 10 and domains <= 1:
         plan = "Individual"
         monthly_cost = 29
     else:
         plan = "Business"
         monthly_cost = 49
-        # Se supera i limiti, stima costi extra
         if domains > 7:
             monthly_cost += (domains - 7) * 10
     
@@ -167,7 +163,6 @@ def calculate_cost_conductor(prompts, pages=1000, billing_cycle="monthly"):
     else:
         plan = "Enterprise"
         monthly_cost = 1310
-        # Se supera limiti Enterprise
         if prompts > 1000:
             monthly_cost += ((prompts - 1000) // 500) * 400
         if pages > 5000:
@@ -209,11 +204,11 @@ def main():
         st.markdown("---")
         st.markdown("### 💡 Cosa sono i Prompts?")
         st.markdown("""
-        I **prompts** (o query) sono le domande che vuoi monitorare sulle AI, ad esempio:
-        - "Miglior software CRM per PMI"
-        - "Come scegliere un consulente marketing"
+        I **prompts** (o query) sono le domande che vuoi monitorare sulle AI:
+        - "Miglior software CRM"
+        - "Come scegliere un consulente"
         - "Alternative a [competitor]"
-        - "[Tuo brand] vs [competitor]"
+        - "[Brand] vs [competitor]"
         """)
     
     # Selezione tool principale
@@ -228,109 +223,99 @@ def main():
     
     st.markdown("---")
     
-    # Input form dinamico in base al tool
-    col1, col2 = st.columns(2)
+    # Input form - tutto in verticale
+    st.subheader("🎯 Configurazione Monitoraggio")
     
-    with col1:
-        st.subheader("📋 Informazioni Brand")
-        brand_name = st.text_input("Nome del tuo brand", placeholder="Es: MioBrand SRL")
-        industry = st.selectbox(
-            "Settore",
-            ["E-commerce", "SaaS", "Servizi", "Prodotti", "Consulenza", "Fintech", "Healthcare", "Altro"]
+    # Input specifici per tool
+    if selected_tool == "Otterly.ai":
+        num_prompts = st.number_input(
+            "Numero di prompts da monitorare",
+            min_value=1,
+            max_value=1000,
+            value=15,
+            step=5,
+            help="Quante query vuoi tracciare (es: 'miglior software per...', 'come scegliere...')"
         )
-        
-        st.subheader("🎯 Configurazione Monitoraggio")
-        
-        # Input specifici per tool
-        if selected_tool == "Otterly.ai":
-            num_prompts = st.number_input(
-                "Numero di prompts da monitorare",
-                min_value=1,
-                max_value=1000,
-                value=15,
-                step=5,
-                help="Quante query vuoi tracciare (es: 'miglior software per...', 'come scegliere...')"
-            )
-        
-        elif selected_tool == "Profound":
-            num_prompts = st.number_input(
-                "Numero di prompts da monitorare",
-                min_value=1,
-                max_value=1000,
-                value=200,
-                step=10,
-                help="Piano base include 200 prompts"
-            )
-            num_companies = st.number_input(
-                "Numero di company da tracciare",
-                min_value=1,
-                max_value=10,
-                value=1,
-                help="Piano base include 1 company"
-            )
-        
-        elif selected_tool == "Ubersuggest":
-            ai_prompts = st.number_input(
-                "AI Prompts al mese",
-                min_value=1,
-                max_value=100,
-                value=10,
-                step=5,
-                help="Numero di AI prompts/query al mese da monitorare"
-            )
-            domains = st.number_input(
-                "Numero di domini (progetti)",
-                min_value=1,
-                max_value=20,
-                value=1,
-                help="Quanti domini/progetti vuoi monitorare"
-            )
-        
-        elif selected_tool == "Conductor":
-            prompts = st.number_input(
-                "Numero di prompts",
-                min_value=1,
-                max_value=5000,
-                value=500,
-                step=50,
-                help="Quanti prompts vuoi tracciare"
-            )
-            pages = st.number_input(
-                "Numero di pagine",
-                min_value=100,
-                max_value=10000,
-                value=1000,
-                step=100,
-                help="Quante pagine del sito monitorare"
-            )
-        
-        competitors = st.number_input(
-            "Numero di competitor da tracciare",
-            min_value=0,
+    
+    elif selected_tool == "Profound":
+        num_prompts = st.number_input(
+            "Numero di prompts da monitorare",
+            min_value=1,
+            max_value=1000,
+            value=200,
+            step=10,
+            help="Piano base include 200 prompts"
+        )
+        num_companies = st.number_input(
+            "Numero di company da tracciare",
+            min_value=1,
+            max_value=10,
+            value=1,
+            help="Piano base include 1 company"
+        )
+    
+    elif selected_tool == "Ubersuggest":
+        ai_prompts = st.number_input(
+            "AI Prompts al mese",
+            min_value=1,
+            max_value=100,
+            value=10,
+            step=5,
+            help="Numero di AI prompts/query al mese da monitorare"
+        )
+        domains = st.number_input(
+            "Numero di domini (progetti)",
+            min_value=1,
             max_value=20,
-            value=3
+            value=1,
+            help="Quanti domini/progetti vuoi monitorare"
         )
     
-    with col2:
-        st.subheader("🤖 Piattaforme AI")
-        selected_platforms = st.multiselect(
-            "Piattaforme da monitorare",
-            PLATFORMS,
-            default=["ChatGPT", "Perplexity", "Google AI Overviews"]
+    elif selected_tool == "Conductor":
+        prompts = st.number_input(
+            "Numero di prompts",
+            min_value=1,
+            max_value=5000,
+            value=500,
+            step=50,
+            help="Quanti prompts vuoi tracciare"
         )
-        
-        st.subheader("💳 Opzioni di pagamento")
-        billing_cycle = st.radio(
-            "Ciclo di fatturazione",
-            ["monthly", "yearly"],
-            format_func=lambda x: "Mensile" if x == "monthly" else "Annuale (sconto ~15%)"
+        pages = st.number_input(
+            "Numero di pagine",
+            min_value=100,
+            max_value=10000,
+            value=1000,
+            step=100,
+            help="Quante pagine del sito monitorare"
         )
-        
-        frequency = st.select_slider(
-            "Frequenza monitoraggio",
-            options=["Settimanale", "Giornaliero", "Real-time"],
-            value="Settimanale"
-        )
+    
+    competitors = st.number_input(
+        "Numero di competitor da tracciare",
+        min_value=0,
+        max_value=20,
+        value=3,
+        help="Quanti competitor vuoi monitorare"
+    )
+    
+    selected_platforms = st.multiselect(
+        "🤖 Piattaforme da monitorare",
+        PLATFORMS,
+        default=["ChatGPT", "Perplexity", "Google AI Overviews"],
+        help="Seleziona le piattaforme AI da monitorare"
+    )
+    
+    billing_cycle = st.radio(
+        "💳 Ciclo di fatturazione",
+        ["monthly", "yearly"],
+        format_func=lambda x: "Mensile" if x == "monthly" else "Annuale (sconto ~15%)",
+        horizontal=True
+    )
+    
+    frequency = st.select_slider(
+        "⏱️ Frequenza monitoraggio",
+        options=["Settimanale", "Giornaliero", "Real-time"],
+        value="Settimanale"
+    )
     
     st.markdown("---")
     
@@ -422,9 +407,6 @@ def main():
             st.markdown("**Piattaforme monitorate:**")
             for platform in selected_platforms:
                 st.markdown(f"🤖 {platform}")
-            
-            st.markdown(f"\n**Brand:** {brand_name}")
-            st.markdown(f"**Settore:** {industry}")
         
         # Tabella comparativa tra tutti i tool
         st.markdown("---")
@@ -471,12 +453,12 @@ def main():
             if num_prompts <= 15:
                 st.info("💰 **Ottimo inizio!** Il piano Lite è perfetto per testare il monitoraggio AI con pochi prompts.")
             elif num_prompts <= 100:
-                st.info("⚙️ **Scelta equilibrata!** Lo Standard offre un ottimo rapporto qualità-prezzo per monitoraggio regolare.")
+                st.info("⚙️ **Scelta equilibrata!** Lo Standard offre un ottimo rapporto qualità-prezzo.")
             else:
-                st.warning("🚀 **Uso intensivo!** Considera il Premium o contatta Otterly per piani custom con più prompts.")
+                st.warning("🚀 **Uso intensivo!** Considera il Premium o contatta Otterly per piani custom.")
         
         elif selected_tool == "Profound":
-            st.info("🎯 **Tool specializzato!** Profound è ideale se vuoi focus su answer engines e tracking profondo dei prompts.")
+            st.info("🎯 **Tool specializzato!** Profound è ideale per focus su answer engines e tracking profondo.")
             if num_prompts > 200:
                 st.warning(f"⚠️ Stai superando i 200 prompts inclusi. Costo stimato per {num_prompts - 200} prompts extra.")
         
@@ -486,7 +468,7 @@ def main():
                 st.success("✅ Ottimo per gestire più progetti/clienti con prompts diversificati.")
         
         elif selected_tool == "Conductor":
-            st.info("🏢 **Enterprise solution!** Conductor è la scelta per grandi organizzazioni con esigenze complesse di prompt tracking.")
+            st.info("🏢 **Enterprise solution!** Conductor è la scelta per grandi organizzazioni.")
             if prompts > 500:
                 st.success("✅ Il piano Enterprise ti darà più flessibilità per prompt tracking massivo.")
         
@@ -499,13 +481,13 @@ def main():
                 "Visibilità brand su AI: +50% in 3-6 mesi",
                 "Ottimizzazione contenuti per risposte AI",
                 "Tracking competitor su prompts rilevanti",
-                "Identificazione gap di mercato nei risultati AI"
+                "Identificazione gap di mercato"
             ],
             "Profound": [
                 "Deep insights su answer engines",
                 "Tracking accurato su 4+ piattaforme AI",
                 "Data history per analisi trend prompts",
-                "Focus su conversazioni AI e query utenti"
+                "Focus su conversazioni AI"
             ],
             "Ubersuggest": [
                 "SEO + AI prompt monitoring combinato",
@@ -516,7 +498,7 @@ def main():
             "Conductor": [
                 "Platform enterprise completa",
                 "Content workflow automation",
-                "Advanced analytics su prompts e performance",
+                "Advanced analytics su prompts",
                 "Integrations con marketing stack"
             ]
         }
@@ -535,8 +517,6 @@ def main():
 REPORT CALCOLO COSTI - AI BRAND MONITORING
 ==========================================
 Tool selezionato: {selected_tool}
-Brand: {brand_name}
-Settore: {industry}
 Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}
 
 CONFIGURAZIONE
