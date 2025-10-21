@@ -551,10 +551,10 @@ CARATTERISTICHE PIANO
         with col2:
             # Link al tool selezionato
             tool_urls = {
-                "Profound": "https://profound.ai",
+                "Profound": "https://www.tryprofound.com/ ",
                 "Otterly.ai": "https://otterly.ai/pricing",
-                "Ubersuggest": "https://neilpatel.com/ubersuggest/pricing",
-                "Conductor": "https://conductor.com/pricing"
+                "Ubersuggest": "https://app.neilpatel.com/en/pricingg",
+                "Conductor": "https://support.conductor.com/en_US/platform-faqs-and-more/pricing-for-conductor-s-products"
             }
             
             st.link_button(
